@@ -564,3 +564,30 @@ impl i16x16 {
     cast_mut(self)
   }
 }
+
+impl Simd<i16, 16> for i16x16 {
+  #[inline]
+  fn as_array(&self) -> &[i16; 16] {
+    self.as_array_ref()
+  }
+
+  #[inline]
+  fn as_mut_array(&mut self) -> &mut [i16; 16] {
+    self.as_array_mut()
+  }
+
+  #[inline]
+  fn splat(val: i16) -> Self {
+    i16x16::splat(val)
+  }
+
+  #[inline]
+  fn from_array(array: [i16; 16]) -> Self {
+    i16x16::from(array)
+  }
+
+  #[inline]
+  fn to_array(self) -> [i16; 16] {
+    self.to_array()
+  }
+}

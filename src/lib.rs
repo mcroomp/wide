@@ -29,6 +29,19 @@
 #[cfg(feature = "std")]
 extern crate std;
 
+pub trait Simd<T, const N: usize> {
+  #[must_use]
+  fn splat(val: T) -> Self;
+  #[must_use]
+  fn from_array(array: [T; N]) -> Self;
+  #[must_use]
+  fn as_array(&self) -> &[T; N];
+  #[must_use]
+  fn as_mut_array(&mut self) -> &mut [T; N];
+  #[must_use]
+  fn to_array(self) -> [T; N];
+}
+
 // TODO
 // Add/Sub/Mul/Div with constant
 // Shuffle left/right/by index

@@ -1579,3 +1579,30 @@ impl f32x4 {
     cast_mut(self)
   }
 }
+
+impl Simd<f32, 4> for f32x4 {
+  #[inline]
+  fn as_array(&self) -> &[f32; 4] {
+    self.as_array_ref()
+  }
+
+  #[inline]
+  fn as_mut_array(&mut self) -> &mut [f32; 4] {
+    self.as_array_mut()
+  }
+
+  #[inline]
+  fn splat(val: f32) -> Self {
+    f32x4::splat(val)
+  }
+
+  #[inline]
+  fn from_array(array: [f32; 4]) -> Self {
+    f32x4::from(array)
+  }
+
+  #[inline]
+  fn to_array(self) -> [f32; 4] {
+    self.to_array()
+  }
+}

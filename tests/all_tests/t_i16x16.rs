@@ -696,3 +696,9 @@ fn impl_i16x16_reduce_max() {
     assert_eq!(p.reduce_min(), i16::MIN);
   }
 }
+
+#[test]
+fn run_simd_tests_i16x16() {
+  let v = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+  crate::t_simd::simd_tests::<wide::i16x16, 16, _, _>(|i| v[i]);
+}

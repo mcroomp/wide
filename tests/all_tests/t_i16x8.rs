@@ -379,3 +379,9 @@ fn impl_i16x8_mul_widen() {
   let actual = a.mul_widen(b);
   assert_eq!(expected, actual);
 }
+
+#[test]
+fn run_simd_tests_i16x8() {
+  let v = [1, 2, 3, 4, 5, 6, 7, 8];
+  crate::t_simd::simd_tests::<wide::i16x8, 8, _, _>(|i| v[i]);
+}
