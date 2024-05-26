@@ -1,16 +1,17 @@
-use std::array;
-
 use wide::Simd;
 
 pub fn simd_tests<
   S: Simd<T, N>,
   const N: usize,
-  T: PartialEq + std::fmt::Debug + Copy,
+  T: PartialEq + std::fmt::Debug + Copy + Default,
   F: Fn(usize) -> T,
 >(
   init: F,
 ) {
-  let array: [T; N] = array::from_fn(|i| init(i));
+  let mut array: [T; N] = [T::default(); N];
+  for i in 0..N {
+    array[i] = init(i);
+  }
 
   let s = S::from_array(array);
   assert_eq!(s.to_array(), array);
