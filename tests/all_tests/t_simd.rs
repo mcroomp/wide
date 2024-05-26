@@ -2,9 +2,9 @@ use wide::Simd;
 
 pub fn simd_tests<
   S: Simd<T, N>,
-  const N: usize,
   T: PartialEq + std::fmt::Debug + Copy + Default,
   F: Fn(usize) -> T,
+  const N: usize,
 >(
   init: F,
 ) {

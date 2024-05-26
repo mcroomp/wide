@@ -820,5 +820,5 @@ fn impl_f32x4_sum() {
 #[test]
 fn run_simd_tests_f32x4() {
   let v = [1.4, 2.1, 3.0, 4.5];
-  crate::t_simd::simd_tests::<wide::f32x4, 4, _, _>(|i| v[i]);
+  crate::t_simd::simd_tests::<wide::f32x4, _, _, 4>(|i| v[i]);
 }
