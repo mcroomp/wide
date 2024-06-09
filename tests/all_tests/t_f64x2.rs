@@ -255,6 +255,7 @@ fn impl_f64x2_max() {
   let actual = a.max(b);
   assert_eq!(expected, actual);
 
+  // should be consistent with behavior of std::cmp::max
   crate::test_random_vector_vs_scalar(|a: f64x2, b| a.max(b), |a, b| a.max(b));
 }
 
@@ -297,6 +298,7 @@ fn impl_f64x2_min() {
   let actual = a.min(b);
   assert_eq!(expected, actual);
 
+  // should be consistent with behavior of std::cmp::min
   crate::test_random_vector_vs_scalar(|a: f64x2, b| a.min(b), |a, b| a.min(b));
 }
 

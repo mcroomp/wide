@@ -220,6 +220,7 @@ fn impl_f32x8_max() {
   let actual = a.max(b);
   assert_eq!(expected, actual);
 
+  // should be consistent with behavior of std::cmp::max
   crate::test_random_vector_vs_scalar(|a: f32x8, b| a.max(b), |a, b| a.max(b));
 }
 
@@ -249,6 +250,7 @@ fn impl_f32x8_min() {
   let actual = a.min(b);
   assert_eq!(expected, actual);
 
+  // should be consistent with behavior of std::cmp::min
   crate::test_random_vector_vs_scalar(|a: f32x8, b| a.min(b), |a, b| a.min(b));
 }
 

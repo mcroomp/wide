@@ -508,8 +508,9 @@ impl f32x4 {
 
   /// Calculates the lanewise maximum of both vectors.
   ///
-  /// This is a faster implementation than `max`, but always choose the rhs in case of Nan
-  /// (which is different that the Rust f32::max function behavior).
+  /// This is a faster implementation than `max`, but always choose the rhs in
+  /// case of Nan (which is different that the Rust f32::max function
+  /// behavior).
   #[inline]
   #[must_use]
   pub fn fast_max(self, rhs: Self) -> Self {
@@ -577,8 +578,9 @@ impl f32x4 {
 
   /// Calculates the lanewise minimum of both vectors.
   ///
-  /// This is a faster implementation than `min`, but always choose the rhs in case of Nan
-  /// (which is different that the Rust f32::min function behavior).
+  /// This is a faster implementation than `min`, but always choose the rhs in
+  /// case of Nan (which is different that the Rust f32::min function
+  /// behavior).
   #[inline]
   #[must_use]
   pub fn fast_min(self, rhs: Self) -> Self {
