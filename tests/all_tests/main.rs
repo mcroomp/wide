@@ -42,21 +42,6 @@ fn gen_random<T: GenSample>(rng: &mut impl RngCore) -> T {
   T::get_sample(next)
 }
 
-/// Generate a random value for a type that implements GenSample.
-fn gen_random<T: GenSample>(rng: &mut impl RngCore) -> T {
-  let r = rng.next_u64();
-
-  // generate special values more often than random chance to test edge cases
-  let next = match r & 0xf {
-    0 => 0,
-    1 => 1,
-    2 => u64::MAX,
-    _ => rng.next_u64(),
-  };
-
-  T::get_sample(next)
-}
-
 /// Test a vector operation against a pure scalar implementation for random
 /// values to make sure that the behavior is the same. This allows for easier
 /// for correctness for various values of the vector.
