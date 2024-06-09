@@ -445,7 +445,8 @@ impl i64x2 {
     cast([arr[0] as f64, arr[1] as f64])
   }
 
-  /// returns the bit mask for each high bit set in the vector with the lowest lane being the lowest bit
+  /// returns the bit mask for each high bit set in the vector with the lowest
+  /// lane being the lowest bit
   #[inline]
   #[must_use]
   pub fn move_mask(self) -> i32 {
@@ -454,11 +455,11 @@ impl i64x2 {
         // use f64 move_mask since it is the same size as i64
         move_mask_m128d(cast(self.sse))
       } else if #[cfg(target_feature="simd128")] {
-        u64x2_bitmask(self.simd) as i32
+        i64x2_bitmask(self.simd) as i32
       } else {
-        let arr: [i64; 2] = cast(self);
-        ((arr[0] < 0) as i32) << 0 |
-        ((arr[1] < 0) as i32) << 1
+        // nothing amazingly efficient for neon
+        let arr: [u64; 2] = cast(self);
+        (arr[0] >> 63 | ((arr[1] >> 62) & 2)) as i32
       }
     }
   }
@@ -469,9 +470,10 @@ impl i64x2 {
   pub fn any(self) -> bool {
     pick! {
       if #[cfg(target_feature="sse")] {
+        // use f64 move_mask since it is the same size as i64
         move_mask_m128d(cast(self.sse)) != 0
       } else if #[cfg(target_feature="simd128")] {
-        u64x2_bitmask(self.simd) != 0
+        i64x2_bitmask(self.simd) != 0
       } else {
         let v : [u64;2] = cast(self);
         ((v[0] | v[1]) & 0x8000000000000000) != 0
@@ -485,12 +487,13 @@ impl i64x2 {
   pub fn all(self) -> bool {
     pick! {
       if #[cfg(target_feature="avx2")] {
+        // use f64 move_mask since it is the same size as i64
         move_mask_m128d(cast(self.sse)) == 0b11
       }  else if #[cfg(target_feature="simd128")] {
-        u64x2_bitmask(self.simd) == 0b11
+        i64x2_bitmask(self.simd) == 0b11
       } else {
         let v : [u64;2] = cast(self);
-        (v[0] | v[1] & 0x8000000000000000) == 0x8000000000000000
+        ((v[0] & v[1]) & 0x8000000000000000) == 0x8000000000000000
       }
     }
   }

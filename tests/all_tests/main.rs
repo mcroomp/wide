@@ -1,6 +1,8 @@
 #![allow(clippy::approx_constant)]
 #![allow(clippy::unnecessary_cast)]
 #![allow(clippy::assertions_on_constants)]
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::nonminimal_bool)]
 
 use rand::RngCore;
 
@@ -40,9 +42,24 @@ fn gen_random<T: GenSample>(rng: &mut impl RngCore) -> T {
   T::get_sample(next)
 }
 
-/// Test a vector operation against a scalar operation for random values to make
-/// sure that the behavior is the same. This allows for easier for correctness
-/// for various values of the vector.
+/// Generate a random value for a type that implements GenSample.
+fn gen_random<T: GenSample>(rng: &mut impl RngCore) -> T {
+  let r = rng.next_u64();
+
+  // generate special values more often than random chance to test edge cases
+  let next = match r & 0xf {
+    0 => 0,
+    1 => 1,
+    2 => u64::MAX,
+    _ => rng.next_u64(),
+  };
+
+  T::get_sample(next)
+}
+
+/// Test a vector operation against a pure scalar implementation for random
+/// values to make sure that the behavior is the same. This allows for easier
+/// for correctness for various values of the vector.
 fn test_random_vector_vs_scalar<
   V,
   VR,
@@ -94,9 +111,14 @@ fn test_random_vector_vs_scalar<
   }
 }
 
-/// Test a vector operation against a scalar operation for random values to make
+/// Test a vector reduce operations that generate a scalar from a vector
+/// against a pure scalar implementation for random values to make
 /// sure that the behavior is the same. This allows for easier for correctness
 /// for various values of the vector.
+///
+/// The scalar operation uses the same construction as the Rust fold function
+/// which takes an accumulator and returns the accumulator after applying the
+/// operation.
 fn test_random_vector_vs_scalar_reduce<
   V,
   T,
@@ -124,8 +146,10 @@ fn test_random_vector_vs_scalar_reduce<
       a_arr[i] = gen_random(&mut rng);
     }
 
-    let expected_scalar =
-      a_arr.iter().enumerate().fold(acc, |acc, (i, &v)| scalar_fn(acc, v, i));
+    let mut expected_scalar = acc;
+    for i in 0..N {
+      expected_scalar = scalar_fn(expected_scalar, a_arr[i], i);
+    }
 
     let expected_vec = vector_fn(V::from(a_arr));
     assert_eq!(
