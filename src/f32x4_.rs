@@ -506,11 +506,14 @@ impl f32x4 {
     }
   }
 
-  /// Calculates the lanewise maximum of both vectors.
+  /// Calculates the lanewise maximum of both vectors using x86-style logic.
+  /// In case of either lane being NaN, chooses `rhs`.
   ///
-  /// This is a faster implementation than `max`, but always choose the rhs in
-  /// case of Nan (which is different that the Rust f32::max function
-  /// behavior).
+  /// The 'fast' version is faster on x86, but doesn't match the Rust min/max
+  /// functions or IEEE-754 which choose the other value in case of NaN.
+  ///
+  /// The non-'fast' version is faster on Aarch64's since it implements IEEE-754
+  /// behavior and the x86 behavior must be emulated.
   #[inline]
   #[must_use]
   pub fn fast_max(self, rhs: Self) -> Self {
@@ -518,10 +521,8 @@ impl f32x4 {
       if #[cfg(target_feature="sse")] {
         Self { sse: max_m128(self.sse, rhs.sse) }
       } else if #[cfg(target_feature="simd128")] {
-        Self {
-          simd: f32x4_pmax(rhs.simd, self.simd),
-        }
-      } else if #[cfg(all(target_feature="neon",target_arch="aarch64"))]{
+        Self { simd: f32x4_pmax(rhs.simd, self.simd) }
+      } else if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
         // vmaxq has a different NaN behavior than Intel
         unsafe {Self { neon: vbslq_f32(vcltq_f32(rhs.neon,self.neon), self.neon, rhs.neon) }}
       } else {
@@ -535,11 +536,14 @@ impl f32x4 {
     }
   }
 
-  /// Calculates the lanewise maximum of both vectors. If either lane is NaN,
-  /// the other lane gets chosen. Use `fast_max` for a faster implementation
-  /// that doesn't handle NaNs.
+  /// Calculates the lanewise maximum of both vectors. In case of either lane
+  /// being NaN, chooses `rhs`.
   ///
-  /// This implementation matches the Rust f32::max function behavior.
+  /// The 'fast' version is faster on x86, but doesn't match the Rust min/max
+  /// functions or IEEE-754 which choose the other value in case of NaN.
+  ///
+  /// The non-'fast' version is faster on Aarch64's since it implements IEEE-754
+  /// behavior and the x86 behavior must be emulated.
   #[inline]
   #[must_use]
   pub fn max(self, rhs: Self) -> Self {
@@ -576,11 +580,14 @@ impl f32x4 {
     }
   }
 
-  /// Calculates the lanewise minimum of both vectors.
+  /// Calculates the lanewise maximum of both vectors using x86-style logic.
+  /// In case of either lane being NaN, chooses `rhs`.
   ///
-  /// This is a faster implementation than `min`, but always choose the rhs in
-  /// case of Nan (which is different that the Rust f32::min function
-  /// behavior).
+  /// The 'fast' version is faster on x86, but doesn't match the Rust min/max
+  /// functions or IEEE-754 which choose the other value in case of NaN.
+  ///
+  /// The non-'fast' version is faster on Aarch64's since it implements IEEE-754
+  /// behavior and the x86 behavior must be emulated.
   #[inline]
   #[must_use]
   pub fn fast_min(self, rhs: Self) -> Self {
@@ -588,9 +595,7 @@ impl f32x4 {
       if #[cfg(target_feature="sse")] {
         Self { sse: min_m128(self.sse, rhs.sse) }
       } else if #[cfg(target_feature="simd128")] {
-        Self {
-          simd: f32x4_pmin(rhs.simd, self.simd),
-        }
+        Self { simd: f32x4_pmin(rhs.simd, self.simd) }
       } else if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
         // vminq has a different NaN behavior than Intel
         unsafe {Self { neon: vbslq_f32(vcltq_f32(self.neon, rhs.neon),self.neon, rhs.neon) }}
@@ -605,11 +610,15 @@ impl f32x4 {
     }
   }
 
-  /// Calculates the lanewise minimum of both vectors. If either lane is NaN,
-  /// the other lane gets chosen. Use `fast_min` for a faster implementation
-  /// that doesn't handle NaNs.
+  /// Calculates the lanewise minimum of both vectors using IEEE-754 / Rust
+  /// min/max style logic. In case of either lane being NaN, chooses the other
+  /// value.
   ///
-  /// This implementation matches the Rust f32::max function behavior.
+  /// The 'fast' version is faster on x86, but doesn't match the Rust min/max
+  /// functions or IEEE-754 which choose the other value in case of NaN.
+  ///
+  /// The non-'fast' version is faster on Aarch64's since it implements IEEE-754
+  /// behavior and the x86 behavior must be emulated.
   #[inline]
   #[must_use]
   pub fn min(self, rhs: Self) -> Self {

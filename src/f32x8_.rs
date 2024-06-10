@@ -389,9 +389,14 @@ impl f32x8 {
     }
   }
 
-  /// Calculates the lanewise maximum of both vectors. This is a faster
-  /// implementation than `max`, but it doesn't specify any behavior if NaNs are
-  /// involved.
+  /// Calculates the lanewise maximum of both vectors using x86-style logic.
+  /// In case of either lane being NaN, chooses `rhs`.
+  ///
+  /// The 'fast' version is faster on x86, but doesn't match the Rust min/max
+  /// functions or IEEE-754 which choose the other value in case of NaN.
+  ///
+  /// The non-'fast' version is faster on Aarch64's since it implements IEEE-754
+  /// behavior and the x86 behavior must be emulated.
   #[inline]
   #[must_use]
   pub fn fast_max(self, rhs: Self) -> Self {
@@ -407,8 +412,14 @@ impl f32x8 {
     }
   }
 
-  /// Calculates the lanewise maximum of both vectors. This doesn't match
-  /// IEEE-754 and instead is defined as `self < rhs ? rhs : self`.
+  /// Calculates the lanewise maximum of both vectors. In case of either lane
+  /// being NaN, chooses `rhs`.
+  ///
+  /// The 'fast' version is faster on x86, but doesn't match the Rust min/max
+  /// functions or IEEE-754 which choose the other value in case of NaN.
+  ///
+  /// The non-'fast' version is faster on Aarch64's since it implements IEEE-754
+  /// behavior and the x86 behavior must be emulated.
   #[inline]
   #[must_use]
   pub fn max(self, rhs: Self) -> Self {
@@ -428,9 +439,14 @@ impl f32x8 {
     }
   }
 
-  /// Calculates the lanewise minimum of both vectors. This is a faster
-  /// implementation than `min`, but it doesn't specify any behavior if NaNs are
-  /// involved.
+  /// Calculates the lanewise maximum of both vectors using x86-style logic.
+  /// In case of either lane being NaN, chooses `rhs`.
+  ///
+  /// The 'fast' version is faster on x86, but doesn't match the Rust min/max
+  /// functions or IEEE-754 which choose the other value in case of NaN.
+  ///
+  /// The non-'fast' version is faster on Aarch64's since it implements IEEE-754
+  /// behavior and the x86 behavior must be emulated.
   #[inline]
   #[must_use]
   pub fn fast_min(self, rhs: Self) -> Self {
@@ -446,9 +462,14 @@ impl f32x8 {
     }
   }
 
-  /// Calculates the lanewise minimum of both vectors. If either lane is NaN,
-  /// the other lane gets chosen. Use `fast_min` for a faster implementation
-  /// that doesn't handle NaNs.
+  /// Calculates the lanewise maximum of both vectors. In case of either lane
+  /// being NaN, chooses `rhs`.
+  ///
+  /// The 'fast' version is faster on x86, but doesn't match the Rust min/max
+  /// functions or IEEE-754 which choose the other value in case of NaN.
+  ///
+  /// The non-'fast' version is faster on Aarch64's since it implements IEEE-754
+  /// behavior and the x86 behavior must be emulated.
   #[inline]
   #[must_use]
   pub fn min(self, rhs: Self) -> Self {
