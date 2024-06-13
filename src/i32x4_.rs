@@ -749,7 +749,7 @@ impl i32x4 {
 
     pick! {
       if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
-        unsafe {Self { neon: vrshr_n_s32::<N>(self.neon) }}
+        unsafe {Self { neon: vrshrq_n_s32::<N>(self.neon) }}
       } else {
         if N == 1 {
           self - self.shr_imm::<31>()
