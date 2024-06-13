@@ -374,3 +374,32 @@ fn impl_i32x8_shl_each() {
     |a, b| a.wrapping_shl(b as u32),
   );
 }
+
+#[test]
+fn impl_i32x4_shr_imm() {
+  crate::test_random_vector_vs_scalar(
+    |a: i32x8, _b| a.shr_imm::<3>(),
+    |a, _b| a >> 3,
+  );
+}
+
+#[test]
+fn impl_i32x4_shl_imm() {
+  crate::test_random_vector_vs_scalar(
+    |a: i32x8, _b| a.shl_imm::<3>(),
+    |a, _b| a << 3,
+  );
+}
+
+#[test]
+fn impl_i32x4_shr_round() {
+  crate::test_random_vector_vs_scalar(
+    |a: i32x8, _b| a.shr_imm_round::<1>(),
+    |a, _b| a / 2,
+  );
+
+  crate::test_random_vector_vs_scalar(
+    |a: i32x4, _b| a.shr_imm_round::<3>(),
+    |a, _b| a / 8,
+  );
+}

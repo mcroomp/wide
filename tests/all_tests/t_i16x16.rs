@@ -700,3 +700,32 @@ fn impl_i16x16_reduce_max() {
     assert_eq!(p.reduce_min(), i16::MIN);
   }
 }
+
+#[test]
+fn impl_i16x16_shr_imm() {
+  crate::test_random_vector_vs_scalar(
+    |a: i16x16, _b| a.shr_imm::<3>(),
+    |a, _b| a >> 3,
+  );
+}
+
+#[test]
+fn impl_i16x16_shl_imm() {
+  crate::test_random_vector_vs_scalar(
+    |a: i16x16, _b| a.shl_imm::<3>(),
+    |a, _b| a << 3,
+  );
+}
+
+#[test]
+fn impl_i16x16_shr_round() {
+  crate::test_random_vector_vs_scalar(
+    |a: i16x16, _b| a.shr_imm_round::<1>(),
+    |a, _b| a / 2,
+  );
+
+  crate::test_random_vector_vs_scalar(
+    |a: i16x16, _b| a.shr_imm_round::<3>(),
+    |a, _b| a / 8,
+  );
+}

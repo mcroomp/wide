@@ -383,3 +383,32 @@ fn impl_i16x8_mul_widen() {
   let actual = a.mul_widen(b);
   assert_eq!(expected, actual);
 }
+
+#[test]
+fn impl_i16x8_shr_imm() {
+  crate::test_random_vector_vs_scalar(
+    |a: i16x8, _b| a.shr_imm::<3>(),
+    |a, _b| a >> 3,
+  );
+}
+
+#[test]
+fn impl_i16x8_shl_imm() {
+  crate::test_random_vector_vs_scalar(
+    |a: i16x8, _b| a.shl_imm::<3>(),
+    |a, _b| a << 3,
+  );
+}
+
+#[test]
+fn impl_i16x8_shr_round() {
+  crate::test_random_vector_vs_scalar(
+    |a: i16x8, _b| a.shr_imm_round::<1>(),
+    |a, _b| a / 2,
+  );
+
+  crate::test_random_vector_vs_scalar(
+    |a: i16x8, _b| a.shr_imm_round::<3>(),
+    |a, _b| a / 8,
+  );
+}

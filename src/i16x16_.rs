@@ -549,6 +549,54 @@ impl i16x16 {
     }
   }
 
+  /// shift all lanes right by immediate
+  pub fn shr_imm<const N: i32>(self) -> Self {
+    assert!(N > 0 && N < 16);
+
+    pick! {
+      if #[cfg(target_feature="avx2")] {
+        Self { avx2: shr_imm_i16_m256i::<N>(self.avx2) }
+      } else {
+        let a: [i16x8; 2] = cast(self);
+        cast([a[0].shr_imm::<N>(), a[1].shr_imm::<N>()])
+      }
+    }
+  }
+
+  /// shift all lanes left by immediate
+  pub fn shl_imm<const N: i32>(self) -> Self {
+    assert!(N > 0 && N < 16);
+
+    pick! {
+      if #[cfg(target_feature="avx2")] {
+        Self { avx2: shl_imm_u16_m256i::<N>(self.avx2) }
+      } else {
+        let a: [i16x8; 2] = cast(self);
+        cast([a[0].shl_imm::<N>(), a[1].shl_imm::<N>()])
+      }
+    }
+  }
+
+  /// shifts right and rounds towards zero, which has the same behavior
+  /// as dividing by a power of 2.
+  pub fn shr_imm_round<const N: i32>(self) -> Self {
+    assert!(N > 0 && N < 16);
+
+    pick! {
+      if #[cfg(target_feature="avx2")] {
+        // for avx2 it's worth doing a wide operation
+        if N == 1 {
+          self - self.shr_imm::<15>()
+        } else {
+          self + (self.shr_imm::<15>() & i16x16::splat((1 << N) - 1))
+        }.shr_imm::<N>()
+      } else {
+        let a: [i16x8; 2] = cast(self);
+        cast([a[0].shr_imm_round::<N>(), a[1].shr_imm_round::<N>()])
+      }
+    }
+  }
+
   #[inline]
   pub fn to_array(self) -> [i16; 16] {
     cast(self)

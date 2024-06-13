@@ -1227,6 +1227,76 @@ impl i16x8 {
     }
   }
 
+  /// shift all lanes right by immediate
+  pub fn shr_imm<const N: i32>(self) -> Self {
+    assert!(N > 0 && N < 16);
+
+    pick! {
+      if #[cfg(target_feature="sse2")] {
+        Self { sse: shr_imm_i16_m128i::<N>(self.sse) }
+      } else if #[cfg(target_feature="simd128")] {
+        Self { simd: i16x8_shr(self.simd, N as u32) }
+      } else if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
+        unsafe {Self { neon: vshrq_n_s16::<N>(self.neon) }}
+      } else {
+        Self { arr: [
+          self.arr[0] >> N,
+          self.arr[1] >> N,
+          self.arr[2] >> N,
+          self.arr[3] >> N,
+          self.arr[4] >> N,
+          self.arr[5] >> N,
+          self.arr[6] >> N,
+          self.arr[7] >> N,
+        ]}
+      }
+    }
+  }
+
+  /// shift all lanes left by immediate
+  pub fn shl_imm<const N: i32>(self) -> Self {
+    assert!(N > 0 && N < 16);
+
+    pick! {
+      if #[cfg(target_feature="sse2")] {
+        Self { sse: shl_imm_u16_m128i::<N>(self.sse) }
+      } else if #[cfg(target_feature="simd128")] {
+        Self { simd: i16x8_shl(self.simd, N as u32) }
+      } else if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
+        unsafe {Self { neon: vshlq_n_s16::<N>(self.neon) }}
+      } else {
+        Self { arr: [
+          self.arr[0] << N,
+          self.arr[1] << N,
+          self.arr[2] << N,
+          self.arr[3] << N,
+          self.arr[4] << N,
+          self.arr[5] << N,
+          self.arr[6] << N,
+          self.arr[7] << N,
+        ]}
+      }
+    }
+  }
+
+  /// shifts right and rounds towards zero, which has the same behavior
+  /// as dividing by a power of 2.
+  pub fn shr_imm_round<const N: i32>(self) -> Self {
+    assert!(N > 0);
+
+    pick! {
+      if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
+        unsafe {Self { neon: vrshr_n_s16::<N>(self.neon) }}
+      } else {
+        if N == 1 {
+          self - self.shr_imm::<15>()
+        } else {
+          self + (self.shr_imm::<15>() & i16x8::splat((1 << N) - 1))
+        }.shr_imm::<N>()
+      }
+    }
+  }
+
   #[inline]
   pub fn to_array(self) -> [i16; 8] {
     cast(self)
