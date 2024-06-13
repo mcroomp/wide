@@ -728,7 +728,7 @@ impl i32x4 {
       if #[cfg(target_feature="sse2")] {
         Self { sse: shl_imm_u32_m128i::<N>(self.sse) }
       } else if #[cfg(target_feature="simd128")] {
-        Self { simd: i32x8_shl(self.simd, N as u32) }
+        Self { simd: i32x4_shl(self.simd, N as u32) }
       } else if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
         unsafe {Self { neon: vshlq_n_s32::<N>(self.neon) }}
       } else {
@@ -749,7 +749,7 @@ impl i32x4 {
 
     pick! {
       if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
-        unsafe {Self { neon: vrshr_n_s16::<N>(self.neon) }}
+        unsafe {Self { neon: vrshr_n_s32::<N>(self.neon) }}
       } else {
         if N == 1 {
           self - self.shr_imm::<31>()
