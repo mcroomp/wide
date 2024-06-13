@@ -743,21 +743,18 @@ impl i32x4 {
   }
 
   /// shifts right and rounds towards zero, which has the same behavior
-  /// as dividing by a power of 2.
-  pub fn shr_imm_round<const N: i32>(self) -> Self {
+  /// as dividing by a power of 2 (rounding towards zero).
+  ///
+  /// Neon has an intrinsic for this but it rounds towards infinity instead of 0.
+  pub fn shr_imm_round_to_zero<const N: i32>(self) -> Self {
     assert!(N > 0 && N < 32);
 
-    pick! {
-      if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
-        unsafe {Self { neon: vrshrq_n_s32::<N>(self.neon) }}
-      } else {
-        if N == 1 {
-          self - self.shr_imm::<31>()
-        } else {
-          self + (self.shr_imm::<31>() & i32x4::splat((1 << N) - 1))
-        }.shr_imm::<N>()
-      }
+    if N == 1 {
+      self - self.shr_imm::<31>()
+    } else {
+      self + (self.shr_imm::<31>() & i32x4::splat((1i32 << N).wrapping_sub(1)))
     }
+    .shr_imm::<N>()
   }
 
   #[inline]

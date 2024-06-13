@@ -1280,19 +1280,29 @@ impl i16x8 {
   }
 
   /// shifts right and rounds towards zero, which has the same behavior
-  /// as dividing by a power of 2.
-  pub fn shr_imm_round<const N: i32>(self) -> Self {
-    assert!(N > 0);
+  /// as dividing by a power of 2 (rounding towards zero).
+  ///
+  /// Neon has an intrinsic for this but it rounds towards up instead of to 0.
+  pub fn shr_imm_round_to_zero<const N: i32>(self) -> Self {
+    assert!(N > 0 && N < 16);
+
+    if N == 1 {
+      self - self.shr_imm::<15>()
+    } else {
+      self + (self.shr_imm::<15>() & i16x8::splat((1i16 << N).wrapping_sub(1)))
+    }
+    .shr_imm::<N>()
+  }
+
+  /// shifts right and rounds rounds up if the highest bit shifted away is 1
+  pub fn shr_imm_round_up<const N: i32>(self) -> Self {
+    assert!(N > 0 && N < 16);
 
     pick! {
       if #[cfg(all(target_feature="neon",target_arch="aarch64"))] {
         unsafe {Self { neon: vrshrq_n_s16::<N>(self.neon) }}
       } else {
-        if N == 1 {
-          self - self.shr_imm::<15>()
-        } else {
-          self + (self.shr_imm::<15>() & i16x8::splat((1 << N) - 1))
-        }.shr_imm::<N>()
+        (self + (self & i16x8::splat(1 << (N - 1)))).shr_imm::<N>()
       }
     }
   }

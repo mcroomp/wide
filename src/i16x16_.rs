@@ -579,7 +579,7 @@ impl i16x16 {
 
   /// shifts right and rounds towards zero, which has the same behavior
   /// as dividing by a power of 2.
-  pub fn shr_imm_round<const N: i32>(self) -> Self {
+  pub fn shr_imm_round_to_zero<const N: i32>(self) -> Self {
     assert!(N > 0 && N < 16);
 
     pick! {
@@ -588,11 +588,11 @@ impl i16x16 {
         if N == 1 {
           self - self.shr_imm::<15>()
         } else {
-          self + (self.shr_imm::<15>() & i16x16::splat((1 << N) - 1))
+          self + (self.shr_imm::<15>() & i16x16::splat((1i16 << N).wrapping_sub(1)))
         }.shr_imm::<N>()
       } else {
         let a: [i16x8; 2] = cast(self);
-        cast([a[0].shr_imm_round::<N>(), a[1].shr_imm_round::<N>()])
+        cast([a[0].shr_imm_round_to_zero::<N>(), a[1].shr_imm_round_to_zero::<N>()])
       }
     }
   }

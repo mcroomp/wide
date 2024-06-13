@@ -401,14 +401,27 @@ fn impl_i16x8_shl_imm() {
 }
 
 #[test]
-fn impl_i16x8_shr_round() {
+fn impl_i16x8_shr_round_to_zero() {
   crate::test_random_vector_vs_scalar(
-    |a: i16x8, _b| a.shr_imm_round::<1>(),
+    |a: i16x8, _b| a.shr_imm_round_to_zero::<1>(),
     |a, _b| a / 2,
   );
 
   crate::test_random_vector_vs_scalar(
-    |a: i16x8, _b| a.shr_imm_round::<3>(),
+    |a: i16x8, _b| a.shr_imm_round_to_zero::<3>(),
     |a, _b| a / 8,
+  );
+}
+
+#[test]
+fn impl_i16x8_shr_round_up() {
+  crate::test_random_vector_vs_scalar(
+    |a: i16x8, _b| a.shr_imm_round_up::<1>(),
+    |a, _b| (a >> 1) + (a & 1),
+  );
+
+  crate::test_random_vector_vs_scalar(
+    |a: i16x8, _b| a.shr_imm_round_up::<3>(),
+    |a, _b| (a >> 3) + ((a >> 2) & 1),
   );
 }
